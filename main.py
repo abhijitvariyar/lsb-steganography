@@ -9,18 +9,27 @@ if __name__ == "__main__":
 
     image = Image("img/test-image.jpg")
 
-    display_image(image.get_image())
+    # display_image(image.get_image())
 
-    display_image_pixels(image.get_image())
+    # display_image_pixels(image.get_image())
 
     message = "<Please enter the message to be encoded>"
 
-    # Use a cryptographically secure random key generator
-    # The key must be 16 (AES-128), 24 (AES-192), or 32 (AES-256) bytes long
-    encryption_key = get_random_bytes(32) # 256-bit key
+    bit_words, bit_str = bin_encode_str(message)
 
-    # Encrypt the message
-    nonce, tag, ciphertext = encrypt(message, encryption_key)   #, encryption_key)
+    for word in bit_words:
+        print(f"{word}")
 
-    # Decrypt the message
-    decrypted_message = decrypt(nonce, ciphertext, encryption_key)
+    # print(f"length of message string: {len(msg)}")
+    # print(f"length of bit_words: {len(bit_words)}")
+
+    # AES ENCRYPTION -----------------------------------------------------------------------
+    # # Use a cryptographically secure random key generator
+    # # The key must be 16 (AES-128), 24 (AES-192), or 32 (AES-256) bytes long
+    # encryption_key = get_random_bytes(32) # 256-bit key
+    #
+    # # Encrypt the message
+    # nonce, tag, ciphertext = encrypt(message, encryption_key)   #, encryption_key)
+    #
+    # # Decrypt the message
+    # decrypted_message = decrypt(nonce, ciphertext, encryption_key)
