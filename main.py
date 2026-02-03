@@ -1,35 +1,33 @@
-import sys
-import cv2 as cv
-
 from ImageProcessor import *
-from Encryptor import *
+from Encoder import *
+
+from Crypto.Random import get_random_bytes
 
 if __name__ == "__main__":
-    print(f"OpenCV version: {cv.__version__}")
-
     image = Image("img/test-image.jpg")
 
-    # display_image(image.get_image())
+    print(f"Image size: {image.get_image_shape()}")
 
-    # display_image_pixels(image.get_image())
+    # display_image_pixels(image)
 
-    message = "<Please enter the message to be encoded>"
+    plain_text = "This is a password"
 
-    bit_words, bit_str = bin_encode_str(message)
+    # Use a cryptographically secure random key generator
+    # The key must be 16 (AES-128), 24 (AES-192), or 32 (AES-256) bytes long
+    encryption_key = get_random_bytes(32) # 256-bit key
 
-    for word in bit_words:
-        print(f"{word}")
+    encoder = Encoder(encryption_key)
 
-    # print(f"length of message string: {len(msg)}")
-    # print(f"length of bit_words: {len(bit_words)}")
+    ciphertext, tag, nonce = encoder.encrypt_msg(plain_text)
 
-    # AES ENCRYPTION -----------------------------------------------------------------------
-    # # Use a cryptographically secure random key generator
-    # # The key must be 16 (AES-128), 24 (AES-192), or 32 (AES-256) bytes long
-    # encryption_key = get_random_bytes(32) # 256-bit key
-    #
-    # # Encrypt the message
-    # nonce, tag, ciphertext = encrypt(message, encryption_key)   #, encryption_key)
-    #
-    # # Decrypt the message
-    # decrypted_message = decrypt(nonce, ciphertext, encryption_key)
+    bit_word_list, encoded_text = encoder.encode_msg(ciphertext)
+
+    # Embed image with new binary encoded string
+    embedded_image = embed_image(image, encoded_text)
+
+    display_image_pixels(embedded_image)
+
+    decoded_text = encoder.decode_msg(encoded_text)
+
+    orig_msg = encoder.decrypt_msg(decoded_text, tag, nonce)
+    print(f"orig_msg: {orig_msg.decode("utf-8")}")
