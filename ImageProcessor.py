@@ -12,7 +12,6 @@ class Image:
         assert self.img is not None, "No image found. Need to provide os.path if not in current directory"
 
         # print(f"Path: {self.path.split('/')[:-1]}")
-        print(f"Path: {self.path[:(self.path.rfind('/') + 1)]}")
 
     def get_image(self):
         return self.img
@@ -20,21 +19,33 @@ class Image:
     def get_image_shape(self):
         return self.img.shape
 
-# def display_image(img: Image):
-#     cv2.imshow("Image", img)
-#     cv2.waitKey(0)
+    def show_image(self):
+        cv2.imshow("Image", self.img)
+        cv2.waitKey(0)
 
 def embed_image(img: Image, msg: str):
-    print(f"Embedding image with binary message: {msg}")
+    Log.log_info(f"Embedding image with binary message: {msg}")
 
-    image = img.get_image()
+    image = img.get_image().copy()
+
     image_shape = img.get_image_shape()
     max_msg_size = image_shape[0] * image_shape[1] * image_shape[2]
 
+    # dir_loc = (img.path.rfind('/') + 1)
+    # file_ext_loc = img.path.rfind('.')
+
+    # file_name = img.path[dir_loc:file_ext_loc]
+    # file_type = img.path[file_ext_loc:]
+
+    image_dir = img.path[:(img.path.rfind('/') + 1)]
+    file_name = img.path[(img.path.rfind('/') + 1): img.path.rfind('.')]
+    file_type = img.path[img.path.rfind('.'):]
+
+    new_img_file = image_dir + file_name + "-encrypted" + file_type
+    # new_img_file = file_name + "-encrypted" + file_type
+
     if len(msg) > max_msg_size:
         Log.log_warning("Message is too long. Part of it will be truncated")
-
-    end_of_msg = False
 
     char_ind = 0
     for row in range(image_shape[0]):
@@ -50,15 +61,46 @@ def embed_image(img: Image, msg: str):
                 char_ind += 1
 
                 if char_ind == len(msg):
-                    # end_of_msg = True
-                    # path = img.path.split('/')[:-1]
-                    path = img.path[:(img.path.rfind('/') + 1)]
-                    return image
+                    # write_status = cv2.imwrite("encrypted-image.jpg", image)
+                    write_status = cv2.imwrite(new_img_file, image)
+                    if write_status:
+                        Log.log_success(f"Image successfully saved to {new_img_file}")
+                    else:
+                        Log.log_error(f"Image write failed")
 
-    path = img.path.split('/')[:-1]
+                    return new_img_file
+                    # return "encrypted-image.jpg"
 
+    return None
 
-    return image
+def extract_msg(img):
+    Log.log_info(f"Extracting message from image: {img.path}")
+
+    image = img.get_image()
+    image_shape = img.get_image_shape()
+    # image_shape = (len(image), len(image[0]))
+
+    msg  = ""
+    word = ""
+
+    for row in range(image_shape[0]):
+        for col in range(image_shape[1]):
+            for colour in range(0, 3):
+                value = int(image[row][col][colour])
+                # Log.log_info(f"value: {value}")
+
+                word += str(value)
+
+                if len(word) == 8:
+                    if word == "00000000":
+                        msg += word
+                        Log.log_info(f"Extracted message: {msg}")
+                        return msg
+                    else:
+                        msg += word
+                        word = ""
+
+    return msg
 
 def display_image_pixels(img: np.ndarray):
     print("Display image pixels")
@@ -72,7 +114,7 @@ def display_image_pixels(img: np.ndarray):
         print(f"row: {row_count} col: {col_count}\nG: {col[0]}\nB: {col[1]}\nR: {col[2]}")
 
 def display_image(img: Image):
-    print("Display image pixels")
+    print("Display image")
 
     row_count = 1
     image = img.get_image()

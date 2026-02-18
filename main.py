@@ -23,11 +23,22 @@ if __name__ == "__main__":
     bit_word_list, encoded_text = encoder.encode_msg(ciphertext)
 
     # Embed image with new binary encoded string
-    embedded_image = embed_image(image, encoded_text)
+    # embedded_image = embed_image(image, encoded_text)
+    new_image_file = embed_image(image, encoded_text)
 
-    display_image_pixels(embedded_image)
+    # encrypted_img = Image(new_image_file)
 
-    decoded_text = encoder.decode_msg(encoded_text)
+    # display_image_pixels(embedded_image)
+    # display_image(encrypted_img)
+
+    # encrypted_img = Image("img/test-image-encrypted.jpg")
+    encrypted_img = Image(new_image_file)
+    encrypted_img.show_image()
+    extracted_msg = extract_msg(encrypted_img)
+    # display_image_pixels(extracted_msg)
+
+    # decoded_text = encoder.decode_msg(encoded_text)
+    decoded_text = encoder.decode_msg(extracted_msg)
 
     orig_msg = encoder.decrypt_msg(decoded_text, tag, nonce)
     print(f"orig_msg: {orig_msg.decode("utf-8")}")
