@@ -11,8 +11,6 @@ class Image:
 
         assert self.img is not None, "No image found. Need to provide os.path if not in current directory"
 
-        # print(f"Path: {self.path.split('/')[:-1]}")
-
     def get_image(self):
         return self.img
 
@@ -31,18 +29,11 @@ def embed_image(img: Image, msg: str):
     image_shape = img.get_image_shape()
     max_msg_size = image_shape[0] * image_shape[1] * image_shape[2]
 
-    # dir_loc = (img.path.rfind('/') + 1)
-    # file_ext_loc = img.path.rfind('.')
-
-    # file_name = img.path[dir_loc:file_ext_loc]
-    # file_type = img.path[file_ext_loc:]
-
     image_dir = img.path[:(img.path.rfind('/') + 1)]
     file_name = img.path[(img.path.rfind('/') + 1): img.path.rfind('.')]
     file_type = img.path[img.path.rfind('.'):]
 
     new_img_file = image_dir + file_name + "-encrypted" + file_type
-    # new_img_file = file_name + "-encrypted" + file_type
 
     if len(msg) > max_msg_size:
         Log.log_warning("Message is too long. Part of it will be truncated")
@@ -61,7 +52,6 @@ def embed_image(img: Image, msg: str):
                 char_ind += 1
 
                 if char_ind == len(msg):
-                    # write_status = cv2.imwrite("encrypted-image.jpg", image)
                     write_status = cv2.imwrite(new_img_file, image)
                     if write_status:
                         Log.log_success(f"Image successfully saved to {new_img_file}")
@@ -69,7 +59,6 @@ def embed_image(img: Image, msg: str):
                         Log.log_error(f"Image write failed")
 
                     return new_img_file
-                    # return "encrypted-image.jpg"
 
     return None
 
@@ -78,7 +67,6 @@ def extract_msg(img):
 
     image = img.get_image()
     image_shape = img.get_image_shape()
-    # image_shape = (len(image), len(image[0]))
 
     msg  = ""
     word = ""
