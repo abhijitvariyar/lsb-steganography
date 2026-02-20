@@ -3,6 +3,13 @@ import numpy as np
 
 from Log import *
 
+'''
+We will use .png file type instead of .jpg because the latter
+causes lossy compression which destroys the message whereas
+the former conserves the message
+'''
+FILE_TYPE = ".png"
+
 class Image:
     def __init__(self, path):
         self.path = path
@@ -21,6 +28,9 @@ class Image:
         cv2.imshow("Image", self.img)
         cv2.waitKey(0)
 
+def test_image_mod(img):
+    pass
+
 def embed_image(img: Image, msg: str):
     Log.log_info(f"Embedding image with binary message: {msg}")
 
@@ -31,9 +41,9 @@ def embed_image(img: Image, msg: str):
 
     image_dir = img.path[:(img.path.rfind('/') + 1)]
     file_name = img.path[(img.path.rfind('/') + 1): img.path.rfind('.')]
-    file_type = img.path[img.path.rfind('.'):]
+    # file_type = img.path[img.path.rfind('.'):]
 
-    new_img_file = image_dir + file_name + "-encrypted" + file_type
+    new_img_file = image_dir + file_name + "-encrypted" + FILE_TYPE
 
     if len(msg) > max_msg_size:
         Log.log_warning("Message is too long. Part of it will be truncated")
@@ -45,7 +55,7 @@ def embed_image(img: Image, msg: str):
                 bin_val = int(msg[char_ind])
                 value = int(image[row][col][colour])
 
-                new_val = (value + bin_val) if (value == 0) else (value - bin_val)
+                new_val = ((value & 0xFE) | int(bin_val))
 
                 image[row][col][colour] = new_val
 
@@ -61,6 +71,7 @@ def embed_image(img: Image, msg: str):
                     return new_img_file
 
     return None
+
 
 def extract_msg(img):
     Log.log_info(f"Extracting message from image: {img.path}")

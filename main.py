@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # encrypted_img = Image("img/test-image-encrypted.jpg")
     encrypted_img = Image(new_image_file)
-    encrypted_img.show_image()
+    # encrypted_img.show_image()
     extracted_msg = extract_msg(encrypted_img)
     # display_image_pixels(extracted_msg)
 
